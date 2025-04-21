@@ -1,18 +1,20 @@
 import firebase_admin
-from firebase_admin import credentials, firestore
+from firebase_admin import credentials
 
-cred = credentials.Certificate("firebase_key.json")
+# Access the secrets
+firebase_credentials = {
+    "type": st.secrets["firebase"]["type"],
+    "project_id": st.secrets["firebase"]["project_id"],
+    "private_key_id": st.secrets["firebase"]["private_key_id"],
+    "private_key": st.secrets["firebase"]["private_key"].replace("\\n", "\n"),
+    "client_email": st.secrets["firebase"]["client_email"],
+    "client_id": st.secrets["firebase"]["client_id"],
+    "auth_uri": st.secrets["firebase"]["auth_uri"],
+    "token_uri": st.secrets["firebase"]["token_uri"],
+    "auth_provider_x509_cert_url": st.secrets["firebase"]["auth_provider_x509_cert_url"],
+    "client_x509_cert_url": st.secrets["firebase"]["client_x509_cert_url"]
+}
+
+# Initialize Firebase
+cred = credentials.Certificate(firebase_credentials)
 firebase_admin.initialize_app(cred)
-
-db = firestore.client()
-
-# Save image selection
-email = st.text_input("Email")
-img = st.file_uploader("Select image")
-
-if st.button("Register") and img:
-    db.collection("users").add({
-        "email": email,
-        "pattern": [img.name]  # You can enhance this with hashes or image IDs
-    })
-    st.success("User saved to Firebase!")
